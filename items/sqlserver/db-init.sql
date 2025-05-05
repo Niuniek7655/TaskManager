@@ -1,0 +1,6 @@
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'PIT')
+BEGIN
+	CREATE DATABASE [PIT]
+	COLLATE Polish_100_CI_AS;
+END
+GO

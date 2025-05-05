@@ -1,0 +1,12 @@
+{
+    "author": "Adrian Tarnowski",
+    "classifications": [ "core" ],
+    "name": "NET API template",
+    "identity": "Template",
+    "shortName": "tlj.paa",
+    "tags": {
+        "language": "C#"
+    },
+    "sourceName": "TLJ.PortsAndAdapters",
+    "preferNameDirectory" : "true"
+}

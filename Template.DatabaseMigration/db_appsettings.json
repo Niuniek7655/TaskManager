@@ -1,0 +1,12 @@
+{
+  "DbUp": {
+    "ConnectionString": "Server=172.17.64.237;Initial Catalog=TaskManager;User Id=SA;Password=P@ssw0rd123!;MultipleActiveResultSets=true;TrustServerCertificate=true;",
+    "ScriptsPath": "..\\..\\..\\..\\Template.Database.SqlServer\\Scripts",
+    "SchemaPath": "..\\..\\..\\..\\Template.Database.SqlServer",
+    "PreDeploymentFolder": "PreDeployment",
+    "MigrationFolder": "Migrations",
+    "PostDeploymentFolder": "PostDeployment",
+    "CustomerSchema": "",
+    "CreateSchemaPath": "..\\..\\..\\..\\Template.Database.SqlServer\\Scripts\\CreateSchema.sql"
+  }
+}

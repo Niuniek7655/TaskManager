@@ -1,0 +1,56 @@
+{
+  "UserConfig": {
+    "Namespaces": [
+      {
+        "Name": "sbemulatorns",
+        "Queues": [
+          {
+            "Name": "main-queue",
+            "Properties": {
+              "LockDuration": "PT1M",
+              "DefaultMessageTimeToLive": "PT1H",
+              "MaxDeliveryCount": 10,
+              "RequiresDuplicateDetection": false,
+              "RequiresSession": false,
+              "DeadLetteringOnMessageExpiration": true,
+              "DuplicateDetectionHistoryTimeWindow": "PT30S"
+            }
+          }
+        ],
+        "Topics": [
+          {
+            "Name": "main-topic",
+            "Properties": {
+              "DefaultMessageTimeToLive": "PT1H",
+              "DuplicateDetectionHistoryTimeWindow": "PT20S",
+              "RequiresDuplicateDetection": false
+            },
+            "Subscriptions": [
+              {
+                "Name": "main-subscription",
+                "Properties": {
+                  "DeadLetteringOnMessageExpiration": false,
+                  "DefaultMessageTimeToLive": "PT1H",
+                  "LockDuration": "PT1M",
+                  "MaxDeliveryCount": 5,
+                  "RequiresSession": false
+                },
+                "Rules": [
+                  {
+                    "Name": "removal_user_event",
+                    "Properties": {
+                      "FilterType": "True"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Logging": {
+      "Type": "File"
+    }
+  }
+}
