@@ -21,6 +21,4 @@ public class DatabaseContext : DbContext
     {
         builder.ApplyConfigurationsFromAssembly(typeof(AuditConfiguration).Assembly);
     }
-
-
 }

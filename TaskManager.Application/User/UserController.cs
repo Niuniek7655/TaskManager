@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using TaskManager.Application.Task.Queries;
 using TaskManager.Application.User.Commands;
 
-namespace TaskManager.Application.Task;
+namespace TaskManager.Application.User;
 
 public class UserController : BaseController
 {
