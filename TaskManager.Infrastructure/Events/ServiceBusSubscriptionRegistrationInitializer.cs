@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Accessory.Builder.Core.Initializer;
 using Accessory.Builder.MessageBus.ServiceBus.Common;
-using TaskManager.Application.Task.Events;
+using TaskManager.Application.User.Events;
 
 namespace TaskManager.Infrastructure.Events;
 
@@ -17,7 +17,6 @@ public class ServiceBusSubscriptionRegistrationInitializer : IInitializer
     public async Task InitializeAsync()
     {
         await _subscriptionBuilder.RemoveDefaultRule();
-        await _subscriptionBuilder.AddCustomRule(Accessory.Builder.MessageBus.Extensions.GetEventFor<RemovalTaskEvent>());
-        await _subscriptionBuilder.AddCustomRule(Accessory.Builder.MessageBus.Extensions.GetEventFor<TaskCompletedEvent>());
+        await _subscriptionBuilder.AddCustomRule(Accessory.Builder.MessageBus.Extensions.GetEventFor<RemovalUserEvent>());
     }
 }

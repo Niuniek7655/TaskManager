@@ -8,7 +8,7 @@ using TaskManager.Core.Domain.User;
 
 namespace TaskManager.Core.Domain.Task;
 
-public class Task : Entity, IAggregateRoot<TaskId>
+public class Task : Entity
 {
     public TaskId Id { get; private set; }
 

@@ -6,13 +6,13 @@ using TaskManager.Core.Repositories;
 
 namespace TaskManager.Infrastructure.Persistence.Repositories;
 
-public class TaskRepository : DatabaseRepository<Core.Domain.Task.Task, TaskId>, ITaskRepository
+public class TaskRepository : DatabaseRepository<User, UserId>, IUserRepository
 {
     public TaskRepository(DatabaseContext context) : base(context) { }
 
-    public Task<Core.Domain.Task.Task?> FindByTaskName(string name)
+    public Task<User?> FindByUserName(string fullDomainName)
     {
-        return _context.Set<Core.Domain.Task.Task>()
-            .Where(x => x.Name == name).SingleOrDefaultAsync();
+        return _context.Set<User>()
+            .Where(x => x.FullDomainName == fullDomainName).SingleOrDefaultAsync();
     }
 }
