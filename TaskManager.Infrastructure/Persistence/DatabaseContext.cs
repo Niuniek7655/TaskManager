@@ -1,7 +1,7 @@
 using Accessory.Builder.Outbox.Common;
 using Accessory.Builder.Persistence.Core.Common.Logs;
 using Microsoft.EntityFrameworkCore;
-using TaskManager.Core.Domain.User;
+using TaskManager.Core.Domain.Task;
 using TaskManager.Infrastructure.Persistence.Configurations;
 
 namespace TaskManager.Infrastructure.Persistence;
@@ -10,7 +10,7 @@ public class DatabaseContext : DbContext
 {
     protected internal DbSet<AuditTrail>? Audits { get; set; }
 
-    protected internal DbSet<User>? Users { get; set; }
+    protected internal DbSet<Task>? Users { get; set; }
 
     protected internal DbSet<OutboxMessage>? OutboxMessages { get; set; }
 

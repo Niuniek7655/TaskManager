@@ -23,6 +23,7 @@ using Accessory.Persistence.EntityFramework.UnitOfWork.Common;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using TaskManager.Application.Task.Events;
 using TaskManager.Application.User.Events;
 using TaskManager.Infrastructure.Events;
 using TaskManager.Infrastructure.Persistence;
@@ -69,7 +70,7 @@ public static class Extensions
         builder.AddServiceBus();
         builder.AddServiceBusSubscriber<ServiceBusSubscriptionRegistrationInitializer>();
         builder.AddServiceBusWorker();
-        builder.AddServiceBusPublisher<RemovalUserEvent>();
+        builder.AddServiceBusPublisher<RemovalTaskEvent>();
             
         return builder;
     }
@@ -78,7 +79,7 @@ public static class Extensions
     {
         // ServiceBus register event example
         var busSubscriber = builder.ApplicationServices.GetRequiredService<IEventSubscriber>();
-        busSubscriber.Subscribe<RemovalUserEvent, RemovalEventHandler>();
+        busSubscriber.Subscribe<RemovalTaskEvent, RemovalEventHandler>();
         return builder;
     }
         

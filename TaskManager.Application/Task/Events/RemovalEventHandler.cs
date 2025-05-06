@@ -1,10 +1,10 @@
-using System.Threading.Tasks;
 using Accessory.Builder.MessageBus.IntegrationEvent;
 using Microsoft.Extensions.Logging;
+using TaskManager.Application.Task.Events;
 
 namespace TaskManager.Application.User.Events;
 
-public class RemovalEventHandler : IIntegrationEventHandler<RemovalUserEvent>
+public class RemovalEventHandler : IIntegrationEventHandler<RemovalTaskEvent>
 {
     private readonly ILogger<RemovalEventHandler> _logger;
 
@@ -13,7 +13,7 @@ public class RemovalEventHandler : IIntegrationEventHandler<RemovalUserEvent>
         _logger = logger;
     }
 
-    public async Task HandleAsync(RemovalUserEvent integrationEvent)
+    public async System.Threading.Tasks.Task HandleAsync(RemovalTaskEvent integrationEvent)
     {
         _logger.Log(LogLevel.Information, "Reaction for this event");
     }

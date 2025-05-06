@@ -32,7 +32,7 @@ public class HealthCheckController : BaseController
     [ProducesResponseType(StatusCodes.Status200OK)]
     public Task<IActionResult> Health()
     {
-        return Task.FromResult<IActionResult>(StatusCode(200));
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(StatusCode(200));
     }
 
     /// <summary>

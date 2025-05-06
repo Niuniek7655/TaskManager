@@ -4,7 +4,7 @@ using TaskManager.Core.Domain.User;
 
 namespace TaskManager.Core.Repositories;
 
-public interface IUserRepository : IRepository<User, UserId>
+public interface ITaskRepository : IRepository<Domain.Task.Task, TaskId>
 {
-    Task<User?> FindByUserName(string userName);
+    Task<Core.Domain.Task.Task?> FindByTaskName(string name);
 }

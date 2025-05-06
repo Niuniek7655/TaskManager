@@ -5,11 +5,11 @@ using Accessory.Builder.CQRS.Core.Queries;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using TaskManager.Application.User.DTO;
+using TaskManager.Application.Task.DTO;
 
-namespace TaskManager.Application.User.Queries.Handlers;
+namespace TaskManager.Application.Task.Queries.Handlers;
 
-public class SpecificCachedUserQueryHandler : IQueryHandler<SpecificCachedUserQuery, UserDTO>
+public class SpecificCachedTaskQueryHandler : IQueryHandler<SpecificCachedTaskQuery, TaskDTO>
 {
     private readonly IQueryDispatcher _queryDispatcher;
     private readonly IDistributedCache _distributedCache;
@@ -18,31 +18,31 @@ public class SpecificCachedUserQueryHandler : IQueryHandler<SpecificCachedUserQu
         AbsoluteExpiration = new DateTimeOffset(new DateTime(2089, 10, 17, 07, 00, 00), TimeSpan.Zero),
         SlidingExpiration = TimeSpan.FromSeconds(3600)
     };
-    private readonly ILogger<SpecificCachedUserQueryHandler> _logger;
+    private readonly ILogger<SpecificCachedTaskQueryHandler> _logger;
 
-    public SpecificCachedUserQueryHandler(
+    public SpecificCachedTaskQueryHandler(
         IDistributedCache distributedCache,
         IQueryDispatcher queryDispatcher,
-        ILogger<SpecificCachedUserQueryHandler> logger)
+        ILogger<SpecificCachedTaskQueryHandler> logger)
     {
         _distributedCache = distributedCache;
         _queryDispatcher = queryDispatcher;
         _logger = logger;
     }
 
-    public async Task<UserDTO> HandleAsync(SpecificCachedUserQuery query)
+    public async Task<TaskDTO> HandleAsync(SpecificCachedTaskQuery query)
     {
         try
         {
-            var cacheItem = await _distributedCache.GetAsync(query.UserName);
+            var cacheItem = await _distributedCache.GetAsync(query.Name);
             if (cacheItem != null)
             {
                 var cacheItemAsString = Encoding.UTF8.GetString(cacheItem);
-                var result = JsonConvert.DeserializeObject<UserDTO>(cacheItemAsString);
+                var result = JsonConvert.DeserializeObject<TaskDTO>(cacheItemAsString);
                 return result!;
             }
-            var dto = await _queryDispatcher.QueryAsync(new SpecificUserQuery { UserName = query.UserName });
-            if (dto != null && dto.FullDomainName != null)
+            var dto = await _queryDispatcher.QueryAsync(new SpecificTaskQuery { Name = query.Name });
+            if (dto != null && dto.Name != null)
                 await StoreInCache(dto);
             return dto!;
         }
@@ -53,10 +53,9 @@ public class SpecificCachedUserQueryHandler : IQueryHandler<SpecificCachedUserQu
         }
     }
 
-    // TODO: Consider moving as a event
-    public async Task StoreInCache(UserDTO entity)
+    public async System.Threading.Tasks.Task StoreInCache(TaskDTO entity)
     {
-        string key = entity.FullDomainName ?? throw new ArgumentNullException(nameof(entity.FullDomainName));
+        string key = entity.Name ?? throw new ArgumentNullException(nameof(entity.Name));
         await _distributedCache.SetAsync(key, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(entity)),
             _cacheOptions);
     }
