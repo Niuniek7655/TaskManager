@@ -6,6 +6,7 @@ using Accessory.Builder.CQRS.Core.Commands;
 using Accessory.Builder.CQRS.Dapper;
 using Accessory.Builder.CQRS.IntegrationEvents;
 using Accessory.Builder.Logging.OpenTelemetry.Decorators;
+using Accessory.Builder.MessageBus.IntegrationEvent;
 using Accessory.Builder.MessageBus.ServiceBus;
 using Accessory.Builder.Outbox.EntityFramework;
 using Accessory.Builder.Outbox.EntityFramework.Common;
@@ -23,6 +24,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Template.Application.User.Events;
+using Template.Infrastructure.Events;
 using Template.Infrastructure.Persistence;
 using Template.Infrastructure.Persistence.Repositories;
 using Template.Infrastructure.ReadModel;
@@ -62,12 +64,11 @@ public static class Extensions
             c.Map<QueryNotValidException>((http, ex) => new QueryNotValidProblemDetails(ex));
             c.Map<DbUpdateConcurrencyException>((http, ex) => new ConcurrencyProblemDetails());
         });
-            
+
         // ServiceBus register events
-        /* builder.AddServiceBus();
+        builder.AddServiceBus();
         builder.AddServiceBusSubscriber<ServiceBusSubscriptionRegistrationInitializer>();
-        builder.AddServiceBusPublisher<RemovalUserCommand>();
-        builder.AddServiceBusWorker(); */
+        builder.AddServiceBusWorker();
         builder.AddServiceBusPublisher<RemovalUserEvent>();
             
         return builder;
@@ -76,8 +77,8 @@ public static class Extensions
     public static IApplicationBuilder UseInfrastructure(this IApplicationBuilder builder)
     {
         // ServiceBus register event example
-        /* var busSubscriber = builder.ApplicationServices.GetRequiredService<IEventSubscriber>();
-        busSubscriber.Subscribe<CloseBookmakingEvent, CloseBookmakingEventHandler>(); */
+        var busSubscriber = builder.ApplicationServices.GetRequiredService<IEventSubscriber>();
+        busSubscriber.Subscribe<RemovalUserEvent, RemovalEventHandler>();
         return builder;
     }
         

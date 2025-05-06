@@ -1,54 +1,36 @@
-﻿using System.Threading.Tasks;
-using Azure.Messaging.ServiceBus;
-using Azure.Messaging.ServiceBus.Administration;
-using Accessory.Builder.MessageBus.Common;
+﻿using Accessory.Builder.MessageBus.Common;
 using Microsoft.Extensions.Logging;
+using RabbitMQ.Client;
+using System.Threading.Tasks;
 
 namespace Accessory.Builder.MessageBus.ServiceBus.Common;
 
 public class ServiceBusSubscriptionBuilder : IServiceBusSubscriptionBuilder
 {
+    private readonly ChannelFactory _channelFactory;
     private readonly BusProperties _busProperties;
-    private readonly ServiceBusAdministrationClient _administrationClient;
     private readonly ILogger<ServiceBusSubscriptionBuilder> _logger;
 
     public ServiceBusSubscriptionBuilder(
+        ChannelFactory channelFactory,
         BusProperties busProperties, 
-        ServiceBusAdministrationClient administrationClient, 
         ILogger<ServiceBusSubscriptionBuilder> logger)
     {
-        _administrationClient = administrationClient;
+        _channelFactory = channelFactory;
         _busProperties = busProperties;
         _logger = logger;
     }
 
-    public async Task AddCustomRule(string subject)
+    public async Task AddCustomRule(string eventType)
     {
-        try
-        {
-            await _administrationClient.CreateRuleAsync(_busProperties.EventTopicName,
-                _busProperties.EventSubscriptionName, new CreateRuleOptions
-                {
-                    Name = subject,
-                    Filter = new CorrelationRuleFilter() { Subject = subject }
-                });
-        }
-        catch (ServiceBusException exception)
-        {
-            _logger.LogInformation($"The messaging entity {subject} already exists.", exception.Message);
-        }
+        var channel = _channelFactory.CreateForConsumer();
+        var exchange = _busProperties.EventExchangeName;
+        var queue = _busProperties.EventQueueNameName;
+
+        channel.ExchangeDeclare(exchange, ExchangeType.Topic, durable: true);
+        channel.QueueDeclare(queue, durable: true, exclusive: false, autoDelete: false);
+        channel.QueueBind(queue: queue, exchange: exchange, routingKey: eventType);
     }
 
-    public async Task RemoveDefaultRule()
-    {
-        try
-        {
-            await _administrationClient.DeleteRuleAsync(_busProperties.EventTopicName,
-                _busProperties.EventSubscriptionName, "$Default");
-        }
-        catch (ServiceBusException exception)
-        {
-            _logger.LogInformation($"The messaging entity has encounter an issue {exception.Message}");
-        }
-    }
+    public Task RemoveDefaultRule() => Task.CompletedTask;
 }

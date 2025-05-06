@@ -17,4 +17,6 @@ public interface IAccessoryBuilder
     TProperties GetSettings<TProperties>(string appSettingSectionName) where TProperties : new();
 
     void GetSettings<TProperties>(string appSettingSectionName, TProperties properties) where TProperties : new();
+
+    T? GetValue<T>(string key);
 }

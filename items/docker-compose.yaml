@@ -5,45 +5,29 @@ services:
       dockerfile: sqlserver/Dockerfile
     container_name: sqlserver
     environment:
-      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
-      ACCEPT_EULA: ${ACCEPT_EULA}
+      MSSQL_SA_PASSWORD: "P@ssw0rd123!"
+      ACCEPT_EULA: "Y"
     ports:
       - "1433:1433"
     volumes:
       - mssql_data:/var/opt/mssql
     restart: unless-stopped
     
-  emulator:
-    container_name: "servicebus-emulator"
-    image: mcr.microsoft.com/azure-messaging/servicebus-emulator:latest
-    volumes:
-      - "${CONFIG_PATH}:/ServiceBus_Emulator/ConfigFiles/Config.json"
+  rabbitmq:
+    image: "rabbitmq:3-management-alpine"
+    container_name: "rabbitmq"
     ports:
       - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq_log:/var/log/rabbitmq
     environment:
-      SQL_SERVER: sqledge  
-      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
-      ACCEPT_EULA: ${ACCEPT_EULA}
-    depends_on:
-      - sqledge
-    networks:
-      sb-emulator:
-        aliases:
-          - "sb-emulator"
-
-  sqledge:
-    container_name: "sqledge"
-    image: "mcr.microsoft.com/azure-sql-edge:latest"
-    networks:
-      sb-emulator:
-        aliases:
-          - "sqledge"
-    environment:
-      ACCEPT_EULA: ${ACCEPT_EULA}
-      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD}
-
-networks:
-  sb-emulator:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    restart: unless-stopped
 
 volumes:
   mssql_data:
+  rabbitmq_data:
+  rabbitmq_log:

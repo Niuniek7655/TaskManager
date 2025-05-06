@@ -20,7 +20,6 @@
         <PackageReference Include="AspNetCore.HealthChecks.AzureStorage" Version="3.2.0" />
         <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="3.0.0" />
         <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="3.0.0" />
-        <PackageReference Include="AspNetCore.HealthChecks.AzureServiceBus" Version="6.1.0" />
     </ItemGroup>
 
     <ItemGroup>

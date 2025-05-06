@@ -1,10 +1,8 @@
 using System;
 using System.Text;
 using System.Threading.Tasks;
-using Azure.Messaging.ServiceBus;
 using Accessory.Builder.MessageBus.Common;
 using Accessory.Builder.MessageBus.IntegrationEvent;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -12,15 +10,17 @@ namespace Accessory.Builder.MessageBus.ServiceBus.Common;
 
 public class ServiceBusPublisher<T> : IBusPublisher<T> where T : IIntegrationEvent
 {
+    private readonly ChannelFactory _channelFactory;
+    private readonly BusProperties _busProperties;
     private readonly ILogger<ServiceBusPublisher<T>> _logger;
-    private readonly ServiceBusSender _sender;
 
     public ServiceBusPublisher(
-        IAzureClientFactory<ServiceBusSender> serviceBusSenderFactory,
+        ChannelFactory channelFactory,
+        BusProperties busProperties,
         ILogger<ServiceBusPublisher<T>> logger)
     {
-        var eventType = MessageBus.Extensions.GetEventFor<T>();
-        _sender = serviceBusSenderFactory.CreateClient(eventType);
+        _channelFactory = channelFactory;
+        _busProperties = busProperties;
         _logger = logger;
     }
 
@@ -29,8 +29,17 @@ public class ServiceBusPublisher<T> : IBusPublisher<T> where T : IIntegrationEve
         var eventType = MessageBus.Extensions.GetEventFor<T>();
         try
         {
-            var message = CreateBusMessage(eventType, payload, sessionId);
-            await _sender.SendMessageAsync(message).ConfigureAwait(false); 
+            var message = CreateMessage(eventType, payload);
+            var channel = _channelFactory.CreateForProducer();
+
+            var prop = channel.CreateBasicProperties();
+
+            channel.BasicPublish(
+                exchange: _busProperties.EventExchangeName,
+                routingKey: eventType,
+                basicProperties: prop,
+                body: message,
+                mandatory: true);
         }
         catch (Exception e)
         {
@@ -39,12 +48,10 @@ public class ServiceBusPublisher<T> : IBusPublisher<T> where T : IIntegrationEve
         }
     }
 
-    private ServiceBusMessage CreateBusMessage(string? messageSubject, object payload, string? sessionId)
+    private byte[]? CreateMessage(string? messageSubject, object payload)
     {
-        string data = payload is string ? (string) payload : JsonConvert.SerializeObject(payload);
-        var message = new ServiceBusMessage(Encoding.UTF8.GetBytes(data));
-        message.SessionId = sessionId ?? Guid.NewGuid().ToString();
-        message.Subject = messageSubject;
-        return message;
+        string data = payload is string ? (string)payload : JsonConvert.SerializeObject(payload);
+        var body = Encoding.UTF8.GetBytes(data);
+        return body;
     }
 }

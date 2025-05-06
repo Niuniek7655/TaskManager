@@ -73,4 +73,9 @@ public class AccessoryBuilder : IAccessoryBuilder
     {
         _buildActions.Add(execute);
     }
+
+    public T? GetValue<T>(string key)
+    {
+        return _configuration.GetValue<T>(key);
+    }
 }

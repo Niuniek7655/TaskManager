@@ -2,76 +2,53 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Azure.Messaging.ServiceBus;
 using Accessory.Builder.CQRS.IntegrationEvents.Common;
 using Accessory.Builder.MessageBus.Common;
 using Accessory.Builder.MessageBus.IntegrationEvent;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using RabbitMQ.Client.Events;
+using RabbitMQ.Client;
 
 namespace Accessory.Builder.MessageBus.ServiceBus.Common;
 
 public class ServiceBusEventSubscriber : IEventSubscriber
 {
-    private readonly ServiceBusClient _serviceBusClient;
+    private readonly ChannelFactory _channelFactory;
     private readonly BusProperties _busProperties;
     private readonly IEventManager _eventManager;
     private readonly IIntegrationEventDispatcher _eventDispatcher;
-    private readonly ILogger<ServiceBusEventSubscriber> _logger;
-    private ServiceBusSessionProcessor? _processor = null;
+    private string? _tag = null;
 
     public ServiceBusEventSubscriber(
+        ChannelFactory channelFactory,
         BusProperties busProperties,
-        ILogger<ServiceBusEventSubscriber> logger,
-        ServiceBusClient serviceBusClient,
         IEventManager eventManager,
         IIntegrationEventDispatcher eventDispatcher)
     {
+        _channelFactory = channelFactory;
         _busProperties = busProperties;
-        _serviceBusClient = serviceBusClient ?? throw new ArgumentNullException(nameof(serviceBusClient));
         _eventManager = eventManager ?? throw new ArgumentNullException(nameof(eventManager));
         _eventDispatcher = eventDispatcher ?? throw new ArgumentNullException(nameof(eventDispatcher));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task RegisterOnMessageHandlerAndReceiveMessages()
     {
-        _processor = _serviceBusClient.CreateSessionProcessor(_busProperties.EventTopicName,
-            _busProperties.EventSubscriptionName,
-            new ServiceBusSessionProcessorOptions()
-            {
-                MaxConcurrentSessions = _busProperties.MaxConcurrentCalls ?? 16,
-                AutoCompleteMessages = _busProperties.AutoComplete ?? false,
-                SessionIdleTimeout = TimeSpan.FromSeconds(_busProperties.MessageWaitTimeoutInSeconds ?? 1),
-                MaxAutoLockRenewalDuration = TimeSpan.FromMinutes(_busProperties.MaxAutoRenewMinutesDuration ?? 5)
-            });
 
-        _processor.ProcessMessageAsync += MessageHandler;
-        _processor.ProcessErrorAsync += ErrorHandler;
-        await _processor.StartProcessingAsync().ConfigureAwait(false);
+        var channel = _channelFactory.CreateForConsumer();
+        var consumer = new EventingBasicConsumer(channel);
+        consumer.Received += async (model, ea) => await MessageHandler(channel, ea).ConfigureAwait(false);
+        string normalizedEventQueueName = _busProperties.EventQueueNameName ?? string.Empty;
+        _tag = channel.BasicConsume(queue: normalizedEventQueueName, autoAck: false, consumer: consumer);
     }
 
-    private async Task MessageHandler(ProcessSessionMessageEventArgs args)
-    {
-        if (await ProcessMessage(args.Message)) ;
-        await args.CompleteMessageAsync(args.Message);
-    }
-
-    private Task ErrorHandler(ProcessErrorEventArgs arg)
-    {
-        _logger.LogError(
-            arg.Exception,
-            $"Message handler encountered an exception | ErrorSource: {arg.ErrorSource} - EntityPath: {arg.EntityPath} - FullyQualifiedNamespace: {arg.FullyQualifiedNamespace}");
-        return Task.CompletedTask;
-    }
-        
-    private async Task<bool> ProcessMessage(ServiceBusReceivedMessage message)
+    private async Task MessageHandler(IModel channel, BasicDeliverEventArgs ea)
     {
         var processed = false;
-        var eventName = message.Subject;
+        var eventName = ea.RoutingKey;
+
         if (_eventManager.HasSubscriptionsForEvent(eventName))
         {
-            var messageAsString = Encoding.UTF8.GetString(message.Body);
+            var messageAsString = Encoding.UTF8.GetString(ea.Body.ToArray());
 
             var eventType = _eventManager.GetEventTypeByName(eventName);
             var integrationEvent = (IIntegrationEvent)JsonConvert.DeserializeObject(messageAsString, eventType)!;
@@ -84,9 +61,12 @@ public class ServiceBusEventSubscriber : IEventSubscriber
             processed = true;
         }
 
-        return processed;
+        if (processed)
+        {
+            channel.BasicAck(ea.DeliveryTag, false);
+        }
     }
-        
+
     public void Subscribe<T, TH>()
         where T : IIntegrationEvent
         where TH : IIntegrationEventHandler<T>
@@ -94,18 +74,24 @@ public class ServiceBusEventSubscriber : IEventSubscriber
         _eventManager.AddSubscription<T, TH>();
     }
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
-        if (_processor != null)
-        {
-            await _processor.DisposeAsync().ConfigureAwait(false);
-        }
-
-        await _serviceBusClient.DisposeAsync().ConfigureAwait(false);
+        DisposeOrClose();
+        return ValueTask.CompletedTask;
     }
 
-    public async Task CloseSubscriptionAsync()
+    public Task CloseSubscriptionAsync()
     {
-        await _processor!.CloseAsync().ConfigureAwait(false);
+        DisposeOrClose();
+        return Task.CompletedTask;
+    }
+
+    private void DisposeOrClose()
+    {
+        if (_tag != null)
+        {
+            var channel = _channelFactory.CreateForConsumer();
+            channel.BasicCancel(_tag);
+        }
     }
 }

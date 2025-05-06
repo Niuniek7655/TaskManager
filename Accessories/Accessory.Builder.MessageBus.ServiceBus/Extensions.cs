@@ -1,12 +1,11 @@
-﻿using Azure.Messaging.ServiceBus;
-using Accessory.Builder.Core.Builders;
+﻿using Accessory.Builder.Core.Builders;
 using Accessory.Builder.Core.Initializer;
 using Accessory.Builder.MessageBus.Common;
 using Accessory.Builder.MessageBus.IntegrationEvent;
 using Accessory.Builder.MessageBus.ServiceBus.Common;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
+using System;
+using RabbitMQ.Client;
 
 namespace Accessory.Builder.MessageBus.ServiceBus;
 
@@ -20,10 +19,32 @@ public static class Extensions
         builder.Services.AddSingleton(busProperties);
         builder.Services.AddSingleton<IEventManager, EventManager>();
             
-        builder.Services.AddAzureClients(sbBuilder =>
+        if (busProperties.Host is null ||
+            busProperties.User is null ||
+            busProperties.Password is null ||
+            busProperties.VirtualHost is null)
         {
-            sbBuilder.AddServiceBusClient(busProperties.ConnectionString);
-            sbBuilder.AddServiceBusAdministrationClient(busProperties.ConnectionString);
+            throw new ArgumentException($"{nameof(BusProperties)} could not be loaded from configuration. Please check, if section names are matching");
+        }
+
+        var appName = builder.GetValue<string>("App:Name");
+        builder.Services.AddTransient<ChannelFactory>();
+        builder.Services.AddSingleton<IConnectionProvider, ConnectionProvider>(sp =>
+        {
+            var factory = new ConnectionFactory
+            {
+                HostName = busProperties.Host,
+                Port = busProperties.Port,
+                UserName = busProperties.User,
+                Password = busProperties.Password,
+                VirtualHost = busProperties.VirtualHost,
+            };
+
+            var consumerConnection = factory.CreateConnection($"{appName}-consumer");
+            var producerConnection = factory.CreateConnection($"{appName}-producer");
+
+            var connectionProvider = new ConnectionProvider(consumerConnection, producerConnection);
+            return connectionProvider;
         });
 
         return builder;
@@ -36,23 +57,7 @@ public static class Extensions
             return builder;
         var busProperties = builder.GetSettings<BusProperties>(sectionName);
         builder.Services.AddSingleton(busProperties);
-        builder.Services.AddSingleton(sp =>
-        {
-            var busSettings = sp.GetRequiredService<BusProperties>();
-            return new ServiceBusClient(busSettings.ConnectionString);
-        });
         builder.Services.AddSingleton<IBusPublisher<T>, ServiceBusPublisher<T>>();
-        builder.Services.AddAzureClients(sbBuilder =>
-        {
-            sbBuilder.AddClient<ServiceBusSender, ServiceBusClientOptions>((_, provider) =>
-                {
-                    var busSettings = provider.GetRequiredService<BusProperties>();
-                    return provider
-                        .GetRequiredService<ServiceBusClient>()
-                        .CreateSender(busSettings.EventTopicName);
-                })
-                .WithName(eventType);
-        });
         return builder;
     }
         
