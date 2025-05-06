@@ -7,20 +7,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Accessories", "Accessories"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Accessory.Builder.Core", "Accessories\Accessory.Builder.Core\Accessory.Builder.Core.csproj", "{1D24987D-5761-46A6-B320-E8B494689309}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Template", "Template", "{DDB6F910-8362-4D39-A2CF-DC2A933A9F15}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TaskManager", "TaskManager", "{DDB6F910-8362-4D39-A2CF-DC2A933A9F15}"
 	ProjectSection(SolutionItems) = preProject
 		.dockerignore = .dockerignore
 		Dockerfile = Dockerfile
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Template.Api", "Template.Api\Template.Api.csproj", "{F8CD4803-B70A-47D3-B75C-D3D1654839D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManager.Api", "TaskManager.Api\TaskManager.Api.csproj", "{F8CD4803-B70A-47D3-B75C-D3D1654839D6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Template.Application", "Template.Application\Template.Application.csproj", "{101B514A-BF47-4D1E-AE62-5023F0BBF87F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManager.Application", "TaskManager.Application\TaskManager.Application.csproj", "{101B514A-BF47-4D1E-AE62-5023F0BBF87F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Template.Infrastructure", "Template.Infrastructure\Template.Infrastructure.csproj", "{98A4A7D5-671C-4616-AA9C-24438FCF4B0A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManager.Infrastructure", "TaskManager.Infrastructure\TaskManager.Infrastructure.csproj", "{98A4A7D5-671C-4616-AA9C-24438FCF4B0A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Template.Core", "Template.Core\Template.Core.csproj", "{9DC5661E-1363-412A-BBC5-42926D5DA00C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManager.Core", "TaskManager.Core\TaskManager.Core.csproj", "{9DC5661E-1363-412A-BBC5-42926D5DA00C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Accessory.Builder.WebApi", "Accessories\Accessory.Builder.WebApi\Accessory.Builder.WebApi.csproj", "{35E8EBE0-DE59-4D40-BF62-F9D4C26EB006}"
 EndProject
@@ -40,9 +40,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Accessory.Builder.Persisten
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Accessory.Builder.Persistence.DatabaseMigration.DbUp", "Accessories\Accessory.Builder.Persistence.DatabaseMigration.DbUp\Accessory.Builder.Persistence.DatabaseMigration.DbUp.csproj", "{04964569-D424-400F-89C1-28713DD45DBF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Template.DatabaseMigration", "Template.DatabaseMigration\Template.DatabaseMigration.csproj", "{EF945B79-B525-4BC5-B1B4-BDB3AA831B08}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskManager.DatabaseMigration", "TaskManager.DatabaseMigration\TaskManager.DatabaseMigration.csproj", "{EF945B79-B525-4BC5-B1B4-BDB3AA831B08}"
 EndProject
-Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Template.Database.SqlServer", "Template.Database.SqlServer\Template.Database.SqlServer.sqlproj", "{65E455DA-82D6-4474-9AD9-34FEB677C146}"
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "TaskManager.Database.SqlServer", "TaskManager.Database.SqlServer\TaskManager.Database.SqlServer.sqlproj", "{65E455DA-82D6-4474-9AD9-34FEB677C146}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Accessory.Builder.HttpClient", "Accessories\Accessory.Builder.HttpClient\Accessory.Builder.HttpClient.csproj", "{A2C9A6AD-2EBA-4B44-B72D-35B39467382B}"
 EndProject
