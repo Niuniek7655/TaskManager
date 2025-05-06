@@ -1,4 +1,6 @@
-﻿namespace TaskManager.Application.Task.DTO;
+﻿using TaskManager.Core.Domain.Task;
+
+namespace TaskManager.Application.Task.DTO;
 
 public class TaskDTO
 {
@@ -6,5 +8,5 @@ public class TaskDTO
 
     public string? Description { get; set; }
 
-    public string? Status { get; set; }
+    public Status? Status { get; set; }
 }

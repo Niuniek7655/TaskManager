@@ -59,6 +59,19 @@ public class TaskController : BaseController
     }
 
     /// <summary>
+    /// Create task's betting
+    /// </summary>
+    [HttpPatch("")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Produces("application/json")]
+    public async Task<IActionResult> Patch([FromBody] TaskStatusUpdateCommand command)
+    {
+        await _commandDispatcher.Send(command);
+        return Ok();
+    }
+
+    /// <summary>
     /// Delete task's betting
     /// </summary>
     [HttpDelete("")]

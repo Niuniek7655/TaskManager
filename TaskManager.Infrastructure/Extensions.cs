@@ -71,7 +71,8 @@ public static class Extensions
         builder.AddServiceBusSubscriber<ServiceBusSubscriptionRegistrationInitializer>();
         builder.AddServiceBusWorker();
         builder.AddServiceBusPublisher<RemovalTaskEvent>();
-            
+        builder.AddServiceBusPublisher<TaskCompletedEvent>();
+
         return builder;
     }
 
@@ -79,7 +80,8 @@ public static class Extensions
     {
         // ServiceBus register event example
         var busSubscriber = builder.ApplicationServices.GetRequiredService<IEventSubscriber>();
-        busSubscriber.Subscribe<RemovalTaskEvent, RemovalEventHandler>();
+        busSubscriber.Subscribe<RemovalTaskEvent, RemovalTaskEventHandler>();
+        busSubscriber.Subscribe<TaskCompletedEvent, TaskCompletedEventHandler>();
         return builder;
     }
         

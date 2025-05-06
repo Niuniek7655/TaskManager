@@ -18,5 +18,6 @@ public class ServiceBusSubscriptionRegistrationInitializer : IInitializer
     {
         await _subscriptionBuilder.RemoveDefaultRule();
         await _subscriptionBuilder.AddCustomRule(Accessory.Builder.MessageBus.Extensions.GetEventFor<RemovalTaskEvent>());
+        await _subscriptionBuilder.AddCustomRule(Accessory.Builder.MessageBus.Extensions.GetEventFor<TaskCompletedEvent>());
     }
 }

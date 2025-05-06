@@ -1,7 +1,9 @@
 ﻿using System;
 using Accessory.Builder.Core.Common;
 using Accessory.Builder.Core.Domain;
+using Accessory.Builder.Core.Domain.Exceptions;
 using TaskManager.Core.Domain.Events;
+using TaskManager.Core.Domain.Rules;
 using TaskManager.Core.Domain.User;
 
 namespace TaskManager.Core.Domain.Task;
@@ -30,6 +32,23 @@ public class Task : Entity, IAggregateRoot<TaskId>
         Status = Status.NotStarted;
 
         AddDomainEvent(new TaskCreated(Id, Name, Description, CreationDate));
+    }
+
+    public void MoveToNextStatus()
+    {
+        Status = Status switch
+        {
+            Status.NotStarted => SetStatusAndReturn(Status.InProgress),
+            Status.InProgress => SetStatusAndReturn(Status.Completed),
+            Status.Completed => throw new BrokenBusinessRuleException(new TaskAlreadyCompletedException()),
+            _ => throw new BrokenBusinessRuleException(new UnsupportedTaskStatusException())
+        };
+    }
+
+    private Status SetStatusAndReturn(Status newStatus)
+    {
+        LastUpdateDate = SystemTime.OffsetNow();
+        return newStatus;
     }
 }
 

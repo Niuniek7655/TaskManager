@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Accessory.Builder.Core.Domain.Exceptions;
 using Accessory.Builder.Core.Domain.Rules;
 using Accessory.Builder.CQRS.Core.Commands;
@@ -11,14 +10,14 @@ namespace TaskManager.Application.User.Commands.Handlers;
 
 public class RemovalCommandHandler : ICommandHandler<RemovalTaskCommand>
 {
-    private readonly ITaskRepository _userRepository;
+    private readonly ITaskRepository _taskRepository;
     private readonly IBusPublisher<RemovalTaskEvent> _busPublisher;
 
     public RemovalCommandHandler(
         ITaskRepository userRepository,
         IBusPublisher<RemovalTaskEvent> busPublisher)
     {
-        _userRepository = userRepository;
+        _taskRepository = userRepository;
         _busPublisher = busPublisher;
     }
 
@@ -26,8 +25,8 @@ public class RemovalCommandHandler : ICommandHandler<RemovalTaskCommand>
     {
         if (string.IsNullOrEmpty(command.Name))
             throw new BrokenBusinessRuleException(new RequiredValueException(nameof(command.Name)));
-        if (await _userRepository.FindByTaskName(command.Name) != null)
-            throw new BrokenBusinessRuleException(new DuplicateValueException());
+        if (await _taskRepository.FindByTaskName(command.Name) == null)
+            throw new BrokenBusinessRuleException(new DoesNotExistException());
 
         await _busPublisher.PublishEventAsync(
             new RemovalTaskEvent(

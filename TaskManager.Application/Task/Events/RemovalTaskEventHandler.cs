@@ -4,11 +4,11 @@ using TaskManager.Application.Task.Events;
 
 namespace TaskManager.Application.User.Events;
 
-public class RemovalEventHandler : IIntegrationEventHandler<RemovalTaskEvent>
+public class RemovalTaskEventHandler : IIntegrationEventHandler<RemovalTaskEvent>
 {
-    private readonly ILogger<RemovalEventHandler> _logger;
+    private readonly ILogger<RemovalTaskEventHandler> _logger;
 
-    public RemovalEventHandler(ILogger<RemovalEventHandler> logger)
+    public RemovalTaskEventHandler(ILogger<RemovalTaskEventHandler> logger)
     {
         _logger = logger;
     }
